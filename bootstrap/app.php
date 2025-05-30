@@ -2,12 +2,14 @@
 
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\ApiAuthenticate;
+use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->prepend([
+            ForceJsonResponse::class,
+        ]);
         $middleware->alias([
             'auth.api' => ApiAuthenticate::class,
             'role' => RoleMiddleware::class,
@@ -48,6 +53,15 @@ return Application::configure(basePath: dirname(__DIR__))
                     'status' => false,
                     'message' => 'Method not allowed for this route.',
                 ], 405);
+            }
+        });
+
+        $exceptions->renderable(function (ThrottleRequestsException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Too many requests. Please try again later.',
+                ], 429);
             }
         });
     })->create();

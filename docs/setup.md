@@ -10,8 +10,8 @@
 
 1. **Clone repo**
    ```bash
-   git clone <repository-url>
-   cd <project-folder>
+   git clone https://github.com/swapnil-mondkar/content-management-system.git
+   cd content-management-system
    ```
 
 2. **Install dependencies**

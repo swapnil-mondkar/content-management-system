@@ -9,6 +9,7 @@ use App\Http\Requests\ArticleStoreRequest;
 use App\Http\Requests\ArticleUpdateRequest;
 use App\Services\ArticleService;
 use App\Traits\ResponseTrait;
+use Illuminate\Http\Request;
 
 /**
  * Class ArticleController
@@ -32,9 +33,9 @@ class ArticleController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->successResponse(data: $this->service->all());
+        return $this->successResponse(data: $this->service->all($request->all()));
     }
 
     /**

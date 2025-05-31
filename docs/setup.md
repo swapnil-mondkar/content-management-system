@@ -60,6 +60,9 @@
 9. **Access API**
     - Base URL: http://localhost:8000/api
 
+10. **Postman URI**
+    - https://www.postman.com/joint-operations-astronomer-90943320/user-management-system/collection/fu13sgx/content-management-system-kitchen-sprus
+
 ## Notes
 - Use Postman or any API client to test endpoints.
 - Ensure you include `Authorization: Bearer {token}` header for protected routes.

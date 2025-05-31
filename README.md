@@ -6,7 +6,8 @@ Welcome to the Kitchen Sprus CMS API project!
 
 - [Setup Guide](docs/setup.md) — How to get the project running locally
 - [Authentication](docs/auth.md) — API login, logout, and token usage
-- [Other Docs](docs/...) — Add more as needed
+- [Categories](docs/categories.md) — API Categories
+- [Articles](docs/categories.md) — API Articles
 
 ## Quick Start
 

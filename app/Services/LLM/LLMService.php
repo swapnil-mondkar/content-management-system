@@ -16,7 +16,7 @@ class LLMService
     public function generateMetadata(string $title, string $content): array
     {
         $provider = config('llm.provider');
-        info("Generating metadata for provider: $provider");
+
         $prompt = <<<PROMPT
 You are a content assistant. Given the article title and content, generate:
 
@@ -37,6 +37,7 @@ PROMPT;
 
         return match ($provider) {
             'openai' => $this->callOpenAI($prompt),
+            'gemini' => $this->callGemini($prompt),
             default => ['slug' => null, 'summary' => null],
         };
     }
@@ -50,10 +51,12 @@ PROMPT;
     protected function callOpenAI(string $prompt): array
     {
         $apiKey = config('llm.openai.key');
-        info("Calling OpenAI API with prompt: $prompt");
+        $url = config('llm.openai.endpoint');
+        $model = config('llm.openai.model');
+
         $response = Http::withToken($apiKey)
-            ->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-3.5-turbo',
+            ->post($url, [
+                'model' => $model,
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt],
                 ],
@@ -61,7 +64,37 @@ PROMPT;
             ]);
 
         $text = $response->json('choices.0.message.content');
-        info("OpenAI response: $response");
+
         return json_decode($text, true) ?? ['slug' => null, 'summary' => null];
+    }
+
+    protected function callGemini(string $prompt): array
+    {
+        $apiKey = config('llm.gemini.api_key');
+        $endpoint = config('llm.gemini.endpoint');
+        $model = config('llm.gemini.model');
+
+        $url = "{$endpoint}/{$model}:generateContent?key={$apiKey}";
+        $response = Http::post($url, [
+            'contents' => [[
+                'parts' => [['text' => $prompt]]
+            ]]
+        ]);
+
+        $text = $response->json('candidates.0.content.parts.0.text') ?? '';
+
+        $parsed = json_decode($text, true);
+
+        if (is_array($parsed) && isset($parsed['slug'], $parsed['summary'])) {
+            return $parsed;
+        }
+
+        preg_match('/"slug"\s*:\s*"([^"]+)"/i', $text, $slugMatch);
+        preg_match('/"summary"\s*:\s*"([^"]+)"/i', $text, $summaryMatch);
+
+        return [
+            'slug' => $slugMatch[1] ?? null,
+            'summary' => $summaryMatch[1] ?? null,
+        ];
     }
 }

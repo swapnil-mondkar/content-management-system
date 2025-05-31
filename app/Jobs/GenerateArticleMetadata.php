@@ -27,7 +27,7 @@ class GenerateArticleMetadata implements ShouldQueue
      */
     public function handle()
     {
-        info("Generating metadata for article ID {$this->article->id}...");
+
         $llm = app(LLMService::class);
         
         $response = $llm->generateMetadata(
@@ -36,7 +36,7 @@ class GenerateArticleMetadata implements ShouldQueue
         );
 
         info("Generated metadata for article ID {$this->article->id}: " . json_encode($response));
-        $this->article->slug = $response['slug'] ?? null;
+        $this->article->slug = $response['slug'] ? $response['slug'] . '-' . uniqid() : null;
         $this->article->summary = $response['summary'] ?? null;
         $this->article->save();
     }

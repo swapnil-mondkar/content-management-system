@@ -10,8 +10,8 @@
 
 1. **Clone repo**
    ```bash
-   git clone <repository-url>
-   cd <project-folder>
+   git clone https://github.com/swapnil-mondkar/content-management-system.git
+   cd content-management-system
    ```
 
 2. **Install dependencies**
@@ -20,8 +20,17 @@
    ```
 
 3. **Setup environment**
-    - Copy .env.example to .env
-    - Update .env with your database and mail config
+    - Copy `.env.example` to `.env`
+    - Update `.env` with your database and mail config
+    - Add API keys for LLM services:
+      ```env
+      OPENAI_API_KEY=your_openai_key
+      OPENAI_MODEL=your_openai_model
+
+      GEMINI_MODEL=your_gemini_model
+      GEMINI_API_KEY=your_gemini_key
+      LLM_PROVIDER=openai # or gemini
+      ```
 
 4. **Generate app key**
    ```bash
@@ -43,10 +52,17 @@
    php artisan serve
    ```
 
-8. **Access API**
+8. **Run queue worker (for background LLM jobs)**
+   ```bash
+   php artisan queue:work
+   ```
+
+9. **Access API**
     - Base URL: http://localhost:8000/api
 
 ## Notes
 - Use Postman or any API client to test endpoints.
-- Ensure you include Authorization: Bearer {token} header for protected routes.
+- Ensure you include `Authorization: Bearer {token}` header for protected routes.
 - Sanctum is used for API token authentication.
+- Asynchronous LLM jobs will auto-generate article slugs and summaries.
+- Supported LLM providers: OpenAI and Gemini (configurable via `.env`).
